@@ -62,7 +62,7 @@ class CassandraHandler : virtual public CassandraIf {
     printf("get_range_slices\n");
   }
 
-  void insert(const std::string& keyspace, const std::string& key, const ColumnPath& column_path, const std::string& value, const int64_t timestamp, const ConsistencyLevel consistency_level) {
+  void insert(const std::string& keyspace, const std::string& key, const ColumnParent& column_parent, const Column& column, const ConsistencyLevel consistency_level) {
     // Your implementation goes here
     printf("insert\n");
   }

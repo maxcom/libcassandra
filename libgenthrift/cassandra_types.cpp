@@ -7,8 +7,8 @@
 
 namespace org { namespace apache { namespace cassandra {
 
-const char* Column::ascii_fingerprint = "A0ED90CE9B69D7A0FCE24E26CAECD2AF";
-const uint8_t Column::binary_fingerprint[16] = {0xA0,0xED,0x90,0xCE,0x9B,0x69,0xD7,0xA0,0xFC,0xE2,0x4E,0x26,0xCA,0xEC,0xD2,0xAF};
+const char* Column::ascii_fingerprint = "AFF5A2690BB9979816507B2F6BD21062";
+const uint8_t Column::binary_fingerprint[16] = {0xAF,0xF5,0xA2,0x69,0x0B,0xB9,0x97,0x98,0x16,0x50,0x7B,0x2F,0x6B,0xD2,0x10,0x62};
 
 uint32_t Column::read(::apache::thrift::protocol::TProtocol* iprot) {
 
@@ -57,6 +57,14 @@ uint32_t Column::read(::apache::thrift::protocol::TProtocol* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->ttl);
+          this->__isset.ttl = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -87,13 +95,18 @@ uint32_t Column::write(::apache::thrift::protocol::TProtocol* oprot) const {
   xfer += oprot->writeFieldBegin("timestamp", ::apache::thrift::protocol::T_I64, 3);
   xfer += oprot->writeI64(this->timestamp);
   xfer += oprot->writeFieldEnd();
+  if (this->__isset.ttl) {
+    xfer += oprot->writeFieldBegin("ttl", ::apache::thrift::protocol::T_I32, 4);
+    xfer += oprot->writeI32(this->ttl);
+    xfer += oprot->writeFieldEnd();
+  }
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
 }
 
-const char* SuperColumn::ascii_fingerprint = "12D6ECAD8A5BF1EF6D95F38F15B05F96";
-const uint8_t SuperColumn::binary_fingerprint[16] = {0x12,0xD6,0xEC,0xAD,0x8A,0x5B,0xF1,0xEF,0x6D,0x95,0xF3,0x8F,0x15,0xB0,0x5F,0x96};
+const char* SuperColumn::ascii_fingerprint = "33B3E5A6E294B6FCDB3F6EB567D3DB04";
+const uint8_t SuperColumn::binary_fingerprint[16] = {0x33,0xB3,0xE5,0xA6,0xE2,0x94,0xB6,0xFC,0xDB,0x3F,0x6E,0xB5,0x67,0xD3,0xDB,0x04};
 
 uint32_t SuperColumn::read(::apache::thrift::protocol::TProtocol* iprot) {
 
@@ -183,8 +196,8 @@ uint32_t SuperColumn::write(::apache::thrift::protocol::TProtocol* oprot) const 
   return xfer;
 }
 
-const char* ColumnOrSuperColumn::ascii_fingerprint = "7206AF0D50A12423508A1B450D4076B8";
-const uint8_t ColumnOrSuperColumn::binary_fingerprint[16] = {0x72,0x06,0xAF,0x0D,0x50,0xA1,0x24,0x23,0x50,0x8A,0x1B,0x45,0x0D,0x40,0x76,0xB8};
+const char* ColumnOrSuperColumn::ascii_fingerprint = "C3B825B665DD0C548851BCD1D6D0D72E";
+const uint8_t ColumnOrSuperColumn::binary_fingerprint[16] = {0xC3,0xB8,0x25,0xB6,0x65,0xDD,0x0C,0x54,0x88,0x51,0xBC,0xD1,0xD6,0xD0,0xD7,0x2E};
 
 uint32_t ColumnOrSuperColumn::read(::apache::thrift::protocol::TProtocol* iprot) {
 
@@ -1002,8 +1015,8 @@ uint32_t KeyRange::write(::apache::thrift::protocol::TProtocol* oprot) const {
   return xfer;
 }
 
-const char* KeySlice::ascii_fingerprint = "6B9E3EBD049E17F183128B5A0F9D0AA1";
-const uint8_t KeySlice::binary_fingerprint[16] = {0x6B,0x9E,0x3E,0xBD,0x04,0x9E,0x17,0xF1,0x83,0x12,0x8B,0x5A,0x0F,0x9D,0x0A,0xA1};
+const char* KeySlice::ascii_fingerprint = "23AD778D2AF7838AF7670990033673A1";
+const uint8_t KeySlice::binary_fingerprint[16] = {0x23,0xAD,0x77,0x8D,0x2A,0xF7,0x83,0x8A,0xF7,0x67,0x09,0x90,0x03,0x36,0x73,0xA1};
 
 uint32_t KeySlice::read(::apache::thrift::protocol::TProtocol* iprot) {
 
@@ -1176,8 +1189,8 @@ uint32_t Deletion::write(::apache::thrift::protocol::TProtocol* oprot) const {
   return xfer;
 }
 
-const char* Mutation::ascii_fingerprint = "D6D4A7E764618937E5BB0CC6336115E1";
-const uint8_t Mutation::binary_fingerprint[16] = {0xD6,0xD4,0xA7,0xE7,0x64,0x61,0x89,0x37,0xE5,0xBB,0x0C,0xC6,0x33,0x61,0x15,0xE1};
+const char* Mutation::ascii_fingerprint = "BFF60385C4A40853485F8D8CC62A8C25";
+const uint8_t Mutation::binary_fingerprint[16] = {0xBF,0xF6,0x03,0x85,0xC4,0xA4,0x08,0x53,0x48,0x5F,0x8D,0x8C,0xC6,0x2A,0x8C,0x25};
 
 uint32_t Mutation::read(::apache::thrift::protocol::TProtocol* iprot) {
 

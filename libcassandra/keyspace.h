@@ -45,7 +45,8 @@ public:
                     const std::string &column_family,
                     const std::string &super_column_name,
                     const std::string &column_name,
-                    const std::string &value);
+                    const std::string &value,
+                    int32_t ttl=0);
 
   /**
    * Insert a column, directly in a columnfamily
@@ -220,6 +221,8 @@ private:
 
   std::vector<org::apache::cassandra::SuperColumn>
   getSuperColumnList(std::vector<org::apache::cassandra::ColumnOrSuperColumn> &cols);
+
+  void validateColumnParent(const org::apache::cassandra::ColumnParent &col_parent);
 
   void validateColumnPath(const org::apache::cassandra::ColumnPath &col_path);
 

@@ -47,21 +47,27 @@ void Keyspace::insertColumn(const string &key,
                             const string &column_family,
                             const string &super_column_name,
                             const string &column_name,
-                            const string &value)
+                            const string &value,
+	                    int32_t ttl)
 {
-  ColumnPath col_path;
-  col_path.column_family.assign(column_family);
+  ColumnParent col_parent;
+  col_parent.column_family.assign(column_family);
   if (! super_column_name.empty()) 
   {
-    col_path.super_column.assign(super_column_name);
-    col_path.__isset.super_column= true;
+    col_parent.super_column.assign(super_column_name);
+    col_parent.__isset.super_column= true;
   }
-  col_path.column.assign(column_name);
-  col_path.__isset.column= true;
+
+  Column column;
+
+  column.name.assign(column_name);
+  column.value.assign(value);
+  column.timestamp=createTimestamp();
+  column.ttl=ttl;
   /* validate the column path */
-  validateColumnPath(col_path);
+  validateColumnParent(col_parent);
   /* actually perform the insert */
-  client->getCassandra()->insert(name, key, col_path, value, createTimestamp(), level);
+  client->getCassandra()->insert(name, key, col_parent, column, level);
 }
 
 
@@ -371,6 +377,31 @@ void Keyspace::validateColumnPath(const ColumnPath &col_path)
   else if (! type.compare("Super"))
   {
     if (! col_path.super_column.empty())
+    {
+      return;
+    }
+  }
+  /* if we get here, throw an exception */
+  throw(InvalidRequestException());
+}
+
+
+void Keyspace::validateColumnParent(const ColumnParent &col_parent)
+{
+  map<string, string> cf_define= keyspace_desc[col_parent.column_family];
+  if (cf_define.empty())
+  {
+    /* throw an exception */
+    throw(InvalidRequestException());
+  }
+  string type= cf_define["Type"];
+  if (! type.compare("Standard"))
+  {
+    return;
+  }
+  else if (! type.compare("Super"))
+  {
+    if (! col_parent.super_column.empty())
     {
       return;
     }

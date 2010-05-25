@@ -2520,9 +2520,8 @@ uint32_t Cassandra_insert_args::read(::apache::thrift::protocol::TProtocol* ipro
 
   bool isset_keyspace = false;
   bool isset_key = false;
-  bool isset_column_path = false;
-  bool isset_value = false;
-  bool isset_timestamp = false;
+  bool isset_column_parent = false;
+  bool isset_column = false;
   bool isset_consistency_level = false;
 
   while (true)
@@ -2551,29 +2550,21 @@ uint32_t Cassandra_insert_args::read(::apache::thrift::protocol::TProtocol* ipro
         break;
       case 3:
         if (ftype == ::apache::thrift::protocol::T_STRUCT) {
-          xfer += this->column_path.read(iprot);
-          isset_column_path = true;
+          xfer += this->column_parent.read(iprot);
+          isset_column_parent = true;
         } else {
           xfer += iprot->skip(ftype);
         }
         break;
       case 4:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readBinary(this->value);
-          isset_value = true;
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->column.read(iprot);
+          isset_column = true;
         } else {
           xfer += iprot->skip(ftype);
         }
         break;
       case 5:
-        if (ftype == ::apache::thrift::protocol::T_I64) {
-          xfer += iprot->readI64(this->timestamp);
-          isset_timestamp = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      case 6:
         if (ftype == ::apache::thrift::protocol::T_I32) {
           int32_t ecast127;
           xfer += iprot->readI32(ecast127);
@@ -2596,11 +2587,9 @@ uint32_t Cassandra_insert_args::read(::apache::thrift::protocol::TProtocol* ipro
     throw TProtocolException(TProtocolException::INVALID_DATA);
   if (!isset_key)
     throw TProtocolException(TProtocolException::INVALID_DATA);
-  if (!isset_column_path)
+  if (!isset_column_parent)
     throw TProtocolException(TProtocolException::INVALID_DATA);
-  if (!isset_value)
-    throw TProtocolException(TProtocolException::INVALID_DATA);
-  if (!isset_timestamp)
+  if (!isset_column)
     throw TProtocolException(TProtocolException::INVALID_DATA);
   if (!isset_consistency_level)
     throw TProtocolException(TProtocolException::INVALID_DATA);
@@ -2616,16 +2605,13 @@ uint32_t Cassandra_insert_args::write(::apache::thrift::protocol::TProtocol* opr
   xfer += oprot->writeFieldBegin("key", ::apache::thrift::protocol::T_STRING, 2);
   xfer += oprot->writeString(this->key);
   xfer += oprot->writeFieldEnd();
-  xfer += oprot->writeFieldBegin("column_path", ::apache::thrift::protocol::T_STRUCT, 3);
-  xfer += this->column_path.write(oprot);
+  xfer += oprot->writeFieldBegin("column_parent", ::apache::thrift::protocol::T_STRUCT, 3);
+  xfer += this->column_parent.write(oprot);
   xfer += oprot->writeFieldEnd();
-  xfer += oprot->writeFieldBegin("value", ::apache::thrift::protocol::T_STRING, 4);
-  xfer += oprot->writeBinary(this->value);
+  xfer += oprot->writeFieldBegin("column", ::apache::thrift::protocol::T_STRUCT, 4);
+  xfer += this->column.write(oprot);
   xfer += oprot->writeFieldEnd();
-  xfer += oprot->writeFieldBegin("timestamp", ::apache::thrift::protocol::T_I64, 5);
-  xfer += oprot->writeI64(this->timestamp);
-  xfer += oprot->writeFieldEnd();
-  xfer += oprot->writeFieldBegin("consistency_level", ::apache::thrift::protocol::T_I32, 6);
+  xfer += oprot->writeFieldBegin("consistency_level", ::apache::thrift::protocol::T_I32, 5);
   xfer += oprot->writeI32((int32_t)this->consistency_level);
   xfer += oprot->writeFieldEnd();
   xfer += oprot->writeFieldStop();
@@ -2642,16 +2628,13 @@ uint32_t Cassandra_insert_pargs::write(::apache::thrift::protocol::TProtocol* op
   xfer += oprot->writeFieldBegin("key", ::apache::thrift::protocol::T_STRING, 2);
   xfer += oprot->writeString((*(this->key)));
   xfer += oprot->writeFieldEnd();
-  xfer += oprot->writeFieldBegin("column_path", ::apache::thrift::protocol::T_STRUCT, 3);
-  xfer += (*(this->column_path)).write(oprot);
+  xfer += oprot->writeFieldBegin("column_parent", ::apache::thrift::protocol::T_STRUCT, 3);
+  xfer += (*(this->column_parent)).write(oprot);
   xfer += oprot->writeFieldEnd();
-  xfer += oprot->writeFieldBegin("value", ::apache::thrift::protocol::T_STRING, 4);
-  xfer += oprot->writeBinary((*(this->value)));
+  xfer += oprot->writeFieldBegin("column", ::apache::thrift::protocol::T_STRUCT, 4);
+  xfer += (*(this->column)).write(oprot);
   xfer += oprot->writeFieldEnd();
-  xfer += oprot->writeFieldBegin("timestamp", ::apache::thrift::protocol::T_I64, 5);
-  xfer += oprot->writeI64((*(this->timestamp)));
-  xfer += oprot->writeFieldEnd();
-  xfer += oprot->writeFieldBegin("consistency_level", ::apache::thrift::protocol::T_I32, 6);
+  xfer += oprot->writeFieldBegin("consistency_level", ::apache::thrift::protocol::T_I32, 5);
   xfer += oprot->writeI32((int32_t)(*(this->consistency_level)));
   xfer += oprot->writeFieldEnd();
   xfer += oprot->writeFieldStop();
@@ -5783,13 +5766,13 @@ void CassandraClient::recv_get_range_slices(std::vector<KeySlice> & _return)
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "get_range_slices failed: unknown result");
 }
 
-void CassandraClient::insert(const std::string& keyspace, const std::string& key, const ColumnPath& column_path, const std::string& value, const int64_t timestamp, const ConsistencyLevel consistency_level)
+void CassandraClient::insert(const std::string& keyspace, const std::string& key, const ColumnParent& column_parent, const Column& column, const ConsistencyLevel consistency_level)
 {
-  send_insert(keyspace, key, column_path, value, timestamp, consistency_level);
+  send_insert(keyspace, key, column_parent, column, consistency_level);
   recv_insert();
 }
 
-void CassandraClient::send_insert(const std::string& keyspace, const std::string& key, const ColumnPath& column_path, const std::string& value, const int64_t timestamp, const ConsistencyLevel consistency_level)
+void CassandraClient::send_insert(const std::string& keyspace, const std::string& key, const ColumnParent& column_parent, const Column& column, const ConsistencyLevel consistency_level)
 {
   int32_t cseqid = 0;
   oprot_->writeMessageBegin("insert", ::apache::thrift::protocol::T_CALL, cseqid);
@@ -5797,9 +5780,8 @@ void CassandraClient::send_insert(const std::string& keyspace, const std::string
   Cassandra_insert_pargs args;
   args.keyspace = &keyspace;
   args.key = &key;
-  args.column_path = &column_path;
-  args.value = &value;
-  args.timestamp = &timestamp;
+  args.column_parent = &column_parent;
+  args.column = &column;
   args.consistency_level = &consistency_level;
   args.write(oprot_);
 
@@ -6884,7 +6866,7 @@ void CassandraProcessor::process_insert(int32_t seqid, ::apache::thrift::protoco
 
   Cassandra_insert_result result;
   try {
-    iface_->insert(args.keyspace, args.key, args.column_path, args.value, args.timestamp, args.consistency_level);
+    iface_->insert(args.keyspace, args.key, args.column_parent, args.column, args.consistency_level);
   } catch (InvalidRequestException &ire) {
     result.ire = ire;
     result.__isset.ire = true;

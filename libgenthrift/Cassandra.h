@@ -22,7 +22,7 @@ class CassandraIf {
   virtual int32_t get_count(const std::string& keyspace, const std::string& key, const ColumnParent& column_parent, const ConsistencyLevel consistency_level) = 0;
   virtual void get_range_slice(std::vector<KeySlice> & _return, const std::string& keyspace, const ColumnParent& column_parent, const SlicePredicate& predicate, const std::string& start_key, const std::string& finish_key, const int32_t row_count, const ConsistencyLevel consistency_level) = 0;
   virtual void get_range_slices(std::vector<KeySlice> & _return, const std::string& keyspace, const ColumnParent& column_parent, const SlicePredicate& predicate, const KeyRange& range, const ConsistencyLevel consistency_level) = 0;
-  virtual void insert(const std::string& keyspace, const std::string& key, const ColumnPath& column_path, const std::string& value, const int64_t timestamp, const ConsistencyLevel consistency_level) = 0;
+  virtual void insert(const std::string& keyspace, const std::string& key, const ColumnParent& column_parent, const Column& column, const ConsistencyLevel consistency_level) = 0;
   virtual void batch_insert(const std::string& keyspace, const std::string& key, const std::map<std::string, std::vector<ColumnOrSuperColumn> > & cfmap, const ConsistencyLevel consistency_level) = 0;
   virtual void remove(const std::string& keyspace, const std::string& key, const ColumnPath& column_path, const int64_t timestamp, const ConsistencyLevel consistency_level) = 0;
   virtual void batch_mutate(const std::string& keyspace, const std::map<std::string, std::map<std::string, std::vector<Mutation> > > & mutation_map, const ConsistencyLevel consistency_level) = 0;
@@ -64,7 +64,7 @@ class CassandraNull : virtual public CassandraIf {
   void get_range_slices(std::vector<KeySlice> & /* _return */, const std::string& /* keyspace */, const ColumnParent& /* column_parent */, const SlicePredicate& /* predicate */, const KeyRange& /* range */, const ConsistencyLevel /* consistency_level */) {
     return;
   }
-  void insert(const std::string& /* keyspace */, const std::string& /* key */, const ColumnPath& /* column_path */, const std::string& /* value */, const int64_t /* timestamp */, const ConsistencyLevel /* consistency_level */) {
+  void insert(const std::string& /* keyspace */, const std::string& /* key */, const ColumnParent& /* column_parent */, const Column& /* column */, const ConsistencyLevel /* consistency_level */) {
     return;
   }
   void batch_insert(const std::string& /* keyspace */, const std::string& /* key */, const std::map<std::string, std::vector<ColumnOrSuperColumn> > & /* cfmap */, const ConsistencyLevel /* consistency_level */) {
@@ -1073,8 +1073,8 @@ class Cassandra_get_range_slices_presult {
 class Cassandra_insert_args {
  public:
 
-  Cassandra_insert_args() : keyspace(""), key(""), value(""), timestamp(0) {
-    consistency_level = (ConsistencyLevel)0;
+  Cassandra_insert_args() : keyspace(""), key("") {
+    consistency_level = (ConsistencyLevel)1;
 
   }
 
@@ -1082,9 +1082,8 @@ class Cassandra_insert_args {
 
   std::string keyspace;
   std::string key;
-  ColumnPath column_path;
-  std::string value;
-  int64_t timestamp;
+  ColumnParent column_parent;
+  Column column;
   ConsistencyLevel consistency_level;
 
   bool operator == (const Cassandra_insert_args & rhs) const
@@ -1093,11 +1092,9 @@ class Cassandra_insert_args {
       return false;
     if (!(key == rhs.key))
       return false;
-    if (!(column_path == rhs.column_path))
+    if (!(column_parent == rhs.column_parent))
       return false;
-    if (!(value == rhs.value))
-      return false;
-    if (!(timestamp == rhs.timestamp))
+    if (!(column == rhs.column))
       return false;
     if (!(consistency_level == rhs.consistency_level))
       return false;
@@ -1122,9 +1119,8 @@ class Cassandra_insert_pargs {
 
   const std::string* keyspace;
   const std::string* key;
-  const ColumnPath* column_path;
-  const std::string* value;
-  const int64_t* timestamp;
+  const ColumnParent* column_parent;
+  const Column* column;
   const ConsistencyLevel* consistency_level;
 
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -1196,7 +1192,7 @@ class Cassandra_batch_insert_args {
  public:
 
   Cassandra_batch_insert_args() : keyspace(""), key("") {
-    consistency_level = (ConsistencyLevel)0;
+    consistency_level = (ConsistencyLevel)1;
 
   }
 
@@ -1310,7 +1306,7 @@ class Cassandra_remove_args {
  public:
 
   Cassandra_remove_args() : keyspace(""), key(""), timestamp(0) {
-    consistency_level = (ConsistencyLevel)0;
+    consistency_level = (ConsistencyLevel)1;
 
   }
 
@@ -1433,7 +1429,7 @@ class Cassandra_batch_mutate_args {
  public:
 
   Cassandra_batch_mutate_args() : keyspace("") {
-    consistency_level = (ConsistencyLevel)0;
+    consistency_level = (ConsistencyLevel)1;
 
   }
 
@@ -2289,8 +2285,8 @@ class CassandraClient : virtual public CassandraIf {
   void get_range_slices(std::vector<KeySlice> & _return, const std::string& keyspace, const ColumnParent& column_parent, const SlicePredicate& predicate, const KeyRange& range, const ConsistencyLevel consistency_level);
   void send_get_range_slices(const std::string& keyspace, const ColumnParent& column_parent, const SlicePredicate& predicate, const KeyRange& range, const ConsistencyLevel consistency_level);
   void recv_get_range_slices(std::vector<KeySlice> & _return);
-  void insert(const std::string& keyspace, const std::string& key, const ColumnPath& column_path, const std::string& value, const int64_t timestamp, const ConsistencyLevel consistency_level);
-  void send_insert(const std::string& keyspace, const std::string& key, const ColumnPath& column_path, const std::string& value, const int64_t timestamp, const ConsistencyLevel consistency_level);
+  void insert(const std::string& keyspace, const std::string& key, const ColumnParent& column_parent, const Column& column, const ConsistencyLevel consistency_level);
+  void send_insert(const std::string& keyspace, const std::string& key, const ColumnParent& column_parent, const Column& column, const ConsistencyLevel consistency_level);
   void recv_insert();
   void batch_insert(const std::string& keyspace, const std::string& key, const std::map<std::string, std::vector<ColumnOrSuperColumn> > & cfmap, const ConsistencyLevel consistency_level);
   void send_batch_insert(const std::string& keyspace, const std::string& key, const std::map<std::string, std::vector<ColumnOrSuperColumn> > & cfmap, const ConsistencyLevel consistency_level);
@@ -2489,10 +2485,10 @@ class CassandraMultiface : virtual public CassandraIf {
     }
   }
 
-  void insert(const std::string& keyspace, const std::string& key, const ColumnPath& column_path, const std::string& value, const int64_t timestamp, const ConsistencyLevel consistency_level) {
+  void insert(const std::string& keyspace, const std::string& key, const ColumnParent& column_parent, const Column& column, const ConsistencyLevel consistency_level) {
     uint32_t sz = ifaces_.size();
     for (uint32_t i = 0; i < sz; ++i) {
-      ifaces_[i]->insert(keyspace, key, column_path, value, timestamp, consistency_level);
+      ifaces_[i]->insert(keyspace, key, column_parent, column, consistency_level);
     }
   }
 
